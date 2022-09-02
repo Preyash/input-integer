@@ -5,7 +5,7 @@ const sheet = new CSSStyleSheet
 const theme = get_theme()
 sheet.replaceSync(theme)
 
-function inputInteger(min, max) {
+function inputInteger(min, max, listen) {
     const el = d.createElement('div')
     const shadow = el.attachShadow({ mode: 'closed' })
     const input = d.createElement('input')
@@ -17,6 +17,21 @@ function inputInteger(min, max) {
     input.onblur = (e) => mouseleave_or_blur_handle(e, input, min)
     shadow.append(input)
     shadow.adoptedStyleSheets = [sheet]
+
+    function keyupHandle(e, input, min, max) {
+        let val = Number(e.target.value)
+        let valLen = val.toString().length
+        let minLen = min.toString().length
+        if (valLen == minLen && val < min) input.value = ''
+        else if (val > max) input.value = max
+        listen({ type: 'update', body: val })
+    }
+
+    function mouseleave_or_blur_handle(e, input, min) {
+        let val = Number(e.target.value)
+        if (val < min) input.value = ''
+    }
+    
     return el
 }
 
@@ -42,15 +57,3 @@ function get_theme() {
     `
 }
 
-function keyupHandle(e, input, min, max) {
-    let val = Number(e.target.value)
-    let valLen = val.toString().length
-    let minLen = min.toString().length
-    if (valLen == minLen && val < min) input.value = ''
-    else if (val > max) input.value = max
-}
-
-function mouseleave_or_blur_handle(e, input, min) {
-    let val = Number(e.target.value)
-    if (val < min) input.value = ''
-}
